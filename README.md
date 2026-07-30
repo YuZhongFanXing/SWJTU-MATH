@@ -23,7 +23,7 @@
 
 ## 资料来源
 
-本资料库中的所有资料均来源于公开资料整理收集。如存在侵权行为，请通过 [Issues](https://github.com/YuZhongFanXing/SWJTU-MATH/issues) 反馈，我们将及时处理。
+本资料库中的所有资料均来源于公开资料整理收集。如存在侵权行为，请通过 [Issues](https://github.com/YuZhongFanXing/SWJTU-MATH/issues) 反馈，我将及时处理。
 
 ## 许可证
 
