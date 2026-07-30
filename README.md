@@ -24,29 +24,6 @@
 
 本资料库中的所有资料均来源于公开资料整理收集。如存在侵权行为，请通过 [Issues](https://github.com/YuZhongFanXing/SWJTU-MATH/issues) 反馈，我们将及时处理。
 
-## 贡献方式
-
-欢迎同学们贡献资料，共同完善这个资料库！
-
-### 方式一：GitHub Pull Request
-
-1. Fork 本仓库
-2. 上传你的文件
-3. 提交 Pull Request
-
-### 方式二：直接联系
-
-如果你不熟悉 GitHub 操作，也可以通过以下方式提交资料：
-
-- 在 [Issues](https://github.com/YuZhongFanXing/SWJTU-MATH/issues) 中留言
-- 通过 QQ 群联系管理员（欢迎添加学习交流群）
-
-## 在线访问
-
-资料库网站自动生成，每次推送代码时会自动构建更新。
-
-访问地址：https://yuZhongFanXing.github.io/SWJTU-MATH/
-
 ## 许可证
 
 本项目采用 [GPL-3.0](LICENSE) 许可证。
