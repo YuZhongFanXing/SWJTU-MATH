@@ -9,9 +9,8 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./" aria-label="资料库首页"><span>SWJTU</span> MATH</a>
+    <a class="brand" href="./" aria-label="资料库首页"><span class="brand-mark">Σ</span><span><b>SWJTU MATH</b><small>数学资料库</small></span></a>
     <nav>
-      <a href="#library">资料库</a>
       <button id="upload-entry" class="nav-upload" type="button">上传资料</button>
       <a href="https://github.com/YuZhongFanXing/SWJTU-MATH" target="_blank" rel="noreferrer">GitHub</a>
     </nav>
@@ -19,29 +18,25 @@
 
   <main>
     <section class="hero">
-      <p class="eyebrow">OPEN STUDY ARCHIVE</p>
-      <h1>把散落的资料，<br><em>整理成共同的知识。</em></h1>
-      <p class="hero-copy">面向西南交通大学数学学习者的开放资料库。按课程发现试卷、笔记、代码与政策资料。</p>
-      <div class="hero-actions">
-        <a class="button primary" href="#library">开始浏览</a>
-        <button class="button secondary" data-open-upload type="button">贡献资料</button>
-      </div>
-      <dl class="stats" aria-label="资料库统计">
-        <div><dt id="resource-count">—</dt><dd>份资料</dd></div>
-        <div><dt id="category-count">—</dt><dd>个分类</dd></div>
-        <div><dt>FREE</dt><dd>开放访问</dd></div>
-      </dl>
+      <div><p class="eyebrow">西南交通大学 · 数学学院</p><h1>课程资料库</h1><p class="hero-copy">试卷、笔记、代码与升学资料，开放浏览与下载。</p></div>
+      <dl class="stats" aria-label="资料库统计"><div><dt id="resource-count">—</dt><dd>份资料</dd></div><div><dt id="category-count">—</dt><dd>个分类</dd></div></dl>
     </section>
 
     <section class="library" id="library">
-      <div class="section-heading">
-        <div><p class="eyebrow">LIBRARY</p><h2>浏览资料</h2></div>
-        <label class="search"><span class="sr-only">搜索资料</span><input id="search" type="search" placeholder="搜索课程、标题或格式…"><kbd>/</kbd></label>
+      <aside class="sidebar">
+        <div class="sidebar-title"><span>资料分类</span><small>SUBJECTS</small></div>
+        <div id="categories" class="categories" aria-label="资料分类"></div>
+        <div class="sidebar-note"><b>参与共建</b><p>使用GitHub账号登录后，可提交不超过10MB的学习资料。</p><button data-open-upload type="button">上传资料 →</button></div>
+      </aside>
+      <div class="library-main">
+        <div class="section-heading">
+          <div><p class="eyebrow">RESOURCE INDEX</p><h2>全部资料</h2></div>
+          <label class="search"><span class="sr-only">搜索资料</span><input id="search" type="search" placeholder="搜索资料名称、课程…"><kbd>/</kbd></label>
+        </div>
+        <div class="result-line"><span id="result-count">正在加载…</span><select id="type-filter" aria-label="文件类型"><option value="">全部格式</option></select></div>
+        <div id="resource-grid" class="resource-grid" aria-live="polite"></div>
+        <button id="load-more" class="load-more" type="button" hidden>加载更多资料</button>
       </div>
-      <div id="categories" class="categories" aria-label="资料分类"></div>
-      <div class="result-line"><span id="result-count">正在加载…</span><select id="type-filter" aria-label="文件类型"><option value="">全部格式</option></select></div>
-      <div id="resource-grid" class="resource-grid" aria-live="polite"></div>
-      <button id="load-more" class="load-more" type="button" hidden>加载更多</button>
     </section>
   </main>
 
