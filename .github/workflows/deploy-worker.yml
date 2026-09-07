@@ -14,21 +14,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Verify required secrets
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          OAUTH_ID: ${{ secrets.GITHUB_OAUTH_CLIENT_ID }}
-          OAUTH_SECRET: ${{ secrets.GITHUB_OAUTH_CLIENT_SECRET }}
-          APP_ID: ${{ secrets.GITHUB_APP_ID }}
-          INSTALLATION_ID: ${{ secrets.GITHUB_INSTALLATION_ID }}
-          APP_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
-          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-        run: |
-          for value in "$CF_TOKEN" "$CF_ACCOUNT" "$OAUTH_ID" "$OAUTH_SECRET" "$APP_ID" "$INSTALLATION_ID" "$APP_KEY" "$SESSION_SECRET"; do
-            test -n "$value" || { echo "A required repository secret is missing"; exit 1; }
-          done
-      - name: Deploy Worker
+      - name: Deploy Worker code
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          wranglerVersion: "4.50.0"
+      - name: Configure application secrets
+        if: ${{ secrets.GITHUB_OAUTH_CLIENT_ID != '' && secrets.GITHUB_OAUTH_CLIENT_SECRET != '' && secrets.GITHUB_APP_ID != '' && secrets.GITHUB_INSTALLATION_ID != '' && secrets.GITHUB_APP_PRIVATE_KEY != '' && secrets.SESSION_SECRET != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
