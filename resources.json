@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T09:17:40.602Z",
+  "generatedAt": "2026-09-07T09:28:53.340Z",
   "resources": [
     {
       "id": "5bi45b6u5YiGLzIwMTkt5bi45b6u5YiG5pa556iLLeacn-acq-iAg-ivleivleWNtyhCKeetiTEz5Liq5paH5Lu2LnppcA",
@@ -817,6 +817,23 @@
       "size": 6459414,
       "previewable": false,
       "source": "repository"
+    },
+    {
+      "id": "07db6a4e-a63e-410e-9069-fca6bd4ec817",
+      "title": "test@sunwenbo",
+      "category": "综合资料",
+      "year": 2026,
+      "description": "这是一个用于测试的上传",
+      "path": "resources/uploads/2026/综合资料/07db6a4e-a63e-410e-9069-fca6bd4ec817.png",
+      "extension": "png",
+      "size": 297116,
+      "uploader": {
+        "githubId": 151923476,
+        "login": "Listenerrr"
+      },
+      "createdAt": "2026-09-07T09:28:37.133Z",
+      "previewable": true,
+      "source": "upload"
     },
     {
       "id": "QysrL0MrKyAyMDIyLTIwMjPmnJ_mnKvlpI3kuaDmj5DnurIucGRm",
