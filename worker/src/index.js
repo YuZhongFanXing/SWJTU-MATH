@@ -140,7 +140,7 @@ async function installationToken(env) {
   const now = Math.floor(Date.now() / 1000);
   const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
   const payload = base64url(JSON.stringify({ iat: now - 30, exp: now + 540, iss: env.GITHUB_APP_ID }));
-  const keyBytes = Uint8Array.from(atob(env.GITHUB_APP_PRIVATE_KEY.replace(/-----[^-]+-----|\s/g, "")), (c) => c.charCodeAt(0));
+  const keyBytes = privateKeyBytes(env.GITHUB_APP_PRIVATE_KEY);
   const key = await crypto.subtle.importKey("pkcs8", keyBytes, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
   const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(`${header}.${payload}`));
   const jwt = `${header}.${payload}.${base64url(new Uint8Array(signature))}`;
@@ -192,6 +192,20 @@ async function verifiedValue(value, secret) {
   } catch { return null; }
 }
 function fromBase64url(value) { const base64 = value.replaceAll("-", "+").replaceAll("_", "/").padEnd(Math.ceil(value.length / 4) * 4, "="); return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)); }
+function privateKeyBytes(pem) {
+  const raw = Uint8Array.from(atob(pem.replace(/-----[^-]+-----|\s/g, "")), (c) => c.charCodeAt(0));
+  if (!pem.includes("BEGIN RSA PRIVATE KEY")) return raw;
+  const version = Uint8Array.from([0x02, 0x01, 0x00]);
+  const algorithm = Uint8Array.from([0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00]);
+  const wrapped = concat(version, algorithm, Uint8Array.from([0x04]), derLength(raw.length), raw);
+  return concat(Uint8Array.from([0x30]), derLength(wrapped.length), wrapped);
+}
+function derLength(length) {
+  if (length < 128) return Uint8Array.from([length]);
+  const bytes = []; while (length > 0) { bytes.unshift(length & 255); length >>>= 8; }
+  return Uint8Array.from([0x80 | bytes.length, ...bytes]);
+}
+function concat(...arrays) { const out = new Uint8Array(arrays.reduce((sum, x) => sum + x.length, 0)); let offset = 0; for (const array of arrays) { out.set(array, offset); offset += array.length; } return out; }
 function githubHeaders(token) { return { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "SWJTU-MATH" }; }
 function base64url(value) { const bytes = typeof value === "string" ? new TextEncoder().encode(value) : value; return toBase64(bytes).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, ""); }
 function toBase64(bytes) { let result = ""; for (let i = 0; i < bytes.length; i += 0x8000) result += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(result); }

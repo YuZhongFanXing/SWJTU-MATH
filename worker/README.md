@@ -18,14 +18,9 @@
 - Repository permissions → Contents：Read and write
 - 关闭不需要的 Webhook
 - 将 App 只安装到 `SWJTU-MATH` 仓库
-- 生成并下载私钥。GitHub 下载的私钥通常是 PKCS#1，Worker 使用前需转换成 PKCS#8：
+- 生成并下载私钥；服务同时兼容GitHub提供的PKCS#1格式和PKCS#8格式。
 
-```bash
-openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt \
-  -in github-app-private-key.pem -out github-app-private-key.pkcs8.pem
-```
-
-记录 App ID、Installation ID 和转换后的 PKCS#8 私钥。不要使用个人 PAT，也不要把任何密钥放入 `web/config.js`。
+记录 App ID、Installation ID 和完整私钥。不要使用个人 PAT，也不要把任何密钥放入 `web/config.js`。
 
 ## 3. Cloudflare与GitHub仓库配置
 
@@ -39,7 +34,7 @@ openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt \
 - `OAUTH_CLIENT_SECRET`
 - `UPLOAD_APP_ID`
 - `UPLOAD_INSTALLATION_ID`
-- `UPLOAD_APP_PRIVATE_KEY`（转换后的完整PKCS#8内容）
+- `UPLOAD_APP_PRIVATE_KEY`（GitHub下载的完整PEM私钥内容，服务会兼容PKCS#1/PKCS#8）
 - `UPLOAD_SESSION_SECRET`（自行生成的至少32字符随机字符串）
 
 运行仓库 Actions 中的 `Deploy Upload Worker`。成功后得到类似 `https://swjtu-math-api.<账户子域>.workers.dev` 的地址。
