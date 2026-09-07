@@ -7,7 +7,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      HAS_APP_CONFIG: ${{ secrets.GITHUB_OAUTH_CLIENT_ID }}
+      HAS_APP_CONFIG: ${{ secrets.OAUTH_CLIENT_ID }}
     defaults:
       run:
         working-directory: worker
@@ -39,9 +39,9 @@ jobs:
             GITHUB_APP_PRIVATE_KEY
             SESSION_SECRET
         env:
-          GITHUB_OAUTH_CLIENT_ID: ${{ secrets.GITHUB_OAUTH_CLIENT_ID }}
-          GITHUB_OAUTH_CLIENT_SECRET: ${{ secrets.GITHUB_OAUTH_CLIENT_SECRET }}
-          GITHUB_APP_ID: ${{ secrets.GITHUB_APP_ID }}
-          GITHUB_INSTALLATION_ID: ${{ secrets.GITHUB_INSTALLATION_ID }}
-          GITHUB_APP_PRIVATE_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
-          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          GITHUB_OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
+          GITHUB_OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_CLIENT_SECRET }}
+          GITHUB_APP_ID: ${{ secrets.UPLOAD_APP_ID }}
+          GITHUB_INSTALLATION_ID: ${{ secrets.UPLOAD_INSTALLATION_ID }}
+          GITHUB_APP_PRIVATE_KEY: ${{ secrets.UPLOAD_APP_PRIVATE_KEY }}
+          SESSION_SECRET: ${{ secrets.UPLOAD_SESSION_SECRET }}

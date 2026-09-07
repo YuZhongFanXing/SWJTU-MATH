@@ -35,12 +35,12 @@ openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt \
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
-- `GITHUB_OAUTH_CLIENT_ID`
-- `GITHUB_OAUTH_CLIENT_SECRET`
-- `GITHUB_APP_ID`
-- `GITHUB_INSTALLATION_ID`
-- `GITHUB_APP_PRIVATE_KEY`（转换后的完整PKCS#8内容）
-- `SESSION_SECRET`（自行生成的至少32字符随机字符串）
+- `OAUTH_CLIENT_ID`
+- `OAUTH_CLIENT_SECRET`
+- `UPLOAD_APP_ID`
+- `UPLOAD_INSTALLATION_ID`
+- `UPLOAD_APP_PRIVATE_KEY`（转换后的完整PKCS#8内容）
+- `UPLOAD_SESSION_SECRET`（自行生成的至少32字符随机字符串）
 
 运行仓库 Actions 中的 `Deploy Upload Worker`。成功后得到类似 `https://swjtu-math-api.<账户子域>.workers.dev` 的地址。
 
