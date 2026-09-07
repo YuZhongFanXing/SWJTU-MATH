@@ -27,23 +27,30 @@ openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt \
 
 记录 App ID、Installation ID 和转换后的 PKCS#8 私钥。不要使用个人 PAT，也不要把任何密钥放入 `web/config.js`。
 
-## 3. Cloudflare Worker
+## 3. Cloudflare与GitHub仓库配置
 
-安装 Wrangler 后执行：
+在Cloudflare创建一个自定义API Token，至少给予当前账户 Workers Scripts Edit 权限，并记录账户ID。然后进入GitHub仓库：
 
-```bash
-cd worker
-cp wrangler.toml.example wrangler.toml
-wrangler kv namespace create SESSIONS
-wrangler secret put GITHUB_OAUTH_CLIENT_ID
-wrangler secret put GITHUB_OAUTH_CLIENT_SECRET
-wrangler secret put GITHUB_APP_PRIVATE_KEY
-wrangler deploy
-```
+`Settings → Secrets and variables → Actions → Secrets`，添加：
 
-将 KV ID、GitHub App ID、Installation ID、仓库和前端地址写入本地 `wrangler.toml`。建议给 Worker 和前端配置同一主域名下的子域名（例如 `api.example.com` 与 `example.com`），避免浏览器阻止跨站登录 Cookie。
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+- `GITHUB_OAUTH_CLIENT_ID`
+- `GITHUB_OAUTH_CLIENT_SECRET`
+- `GITHUB_APP_ID`
+- `GITHUB_INSTALLATION_ID`
+- `GITHUB_APP_PRIVATE_KEY`（转换后的完整PKCS#8内容）
+- `SESSION_SECRET`（自行生成的至少32字符随机字符串）
 
-最后把 Worker 地址填入 `web/config.js` 的 `apiBase` 并重新部署前端。
+运行仓库 Actions 中的 `Deploy Upload Worker`。成功后得到类似 `https://swjtu-math-api.<账户子域>.workers.dev` 的地址。
+
+进入 `Settings → Secrets and variables → Actions → Variables`，添加：
+
+- `UPLOAD_API_BASE`：上一步得到的Worker地址
+
+最后重新运行 `Build and Deploy`。构建脚本会自动把接口地址写入发布产物，不会把任何密钥写入前端。
+
+建议最终给Worker和前端配置同一主域名下的子域名，避免严格禁用第三方Cookie的浏览器阻止GitHub登录会话。
 
 ## 自动发布边界
 

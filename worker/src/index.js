@@ -27,22 +27,21 @@ async function beginAuth(request, env) {
   const state = crypto.randomUUID();
   const requestedReturn = url.searchParams.get("return_to") || env.FRONTEND_ORIGIN;
   const returnTo = new URL(requestedReturn).origin === new URL(env.FRONTEND_ORIGIN).origin ? requestedReturn : env.FRONTEND_ORIGIN;
-  await env.SESSIONS.put(`oauth:${state}`, JSON.stringify({ returnTo }), { expirationTtl: 600 });
+  const oauthCookie = await signedValue({ state, returnTo, exp: Date.now() + 600_000 }, env.SESSION_SECRET);
   const callback = `${url.origin}/auth/callback`;
   const destination = new URL("https://github.com/login/oauth/authorize");
   destination.searchParams.set("client_id", env.GITHUB_OAUTH_CLIENT_ID);
   destination.searchParams.set("redirect_uri", callback);
   destination.searchParams.set("scope", "read:user");
   destination.searchParams.set("state", state);
-  return Response.redirect(destination, 302);
+  return new Response(null, { status: 302, headers: { Location: destination.toString(), "Set-Cookie": cookie("swjtu_oauth", oauthCookie, 600) } });
 }
 
 async function finishAuth(request, env) {
   const url = new URL(request.url);
   const state = url.searchParams.get("state");
-  const saved = state && await env.SESSIONS.get(`oauth:${state}`, "json");
-  if (!saved || !url.searchParams.get("code")) throw httpError(400, "GitHub登录状态已过期，请重新登录。");
-  await env.SESSIONS.delete(`oauth:${state}`);
+  const saved = await verifiedValue(parseCookies(request.headers.get("cookie") || "").swjtu_oauth, env.SESSION_SECRET);
+  if (!saved || saved.state !== state || saved.exp < Date.now() || !url.searchParams.get("code")) throw httpError(400, "GitHub登录状态已过期，请重新登录。");
   const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
     headers: { Accept: "application/json", "Content-Type": "application/json", "User-Agent": "SWJTU-MATH" },
@@ -55,10 +54,9 @@ async function finishAuth(request, env) {
   if (!userResponse.ok) throw httpError(401, "无法读取GitHub用户信息。");
   const accountAge = Date.now() - new Date(user.created_at).getTime();
   if (accountAge < 7 * 86400_000) throw httpError(403, "为减少滥用，仅支持注册满7天的GitHub账号上传。");
-  const sessionId = crypto.randomUUID();
-  await env.SESSIONS.put(`session:${sessionId}`, JSON.stringify({ id: user.id, login: user.login, avatar: user.avatar_url }), { expirationTtl: 30 * 86400 });
+  const session = await signedValue({ id: user.id, login: user.login, avatar: user.avatar_url, exp: Date.now() + 30 * 86400_000 }, env.SESSION_SECRET);
   const redirect = new URL(saved.returnTo); redirect.searchParams.set("login", "success");
-  return new Response(null, { status: 302, headers: { Location: redirect.toString(), "Set-Cookie": sessionCookie(sessionId) } });
+  return new Response(null, { status: 302, headers: { Location: redirect.toString(), "Set-Cookie": cookie("swjtu_session", session, 30 * 86400) } });
 }
 
 async function currentUser(request, env) {
@@ -71,8 +69,7 @@ async function upload(request, env) {
   const contentLength = Number(request.headers.get("content-length") || 0);
   if (contentLength > MAX_FILE_SIZE + 100_000) throw httpError(413, "文件不能超过10MB。");
   const day = new Date().toISOString().slice(0, 10);
-  const rateKey = `uploads:${day}:${user.id}`;
-  const used = Number(await env.SESSIONS.get(rateKey) || 0);
+  const used = await dailyUploadCount(env, day, user.id);
   if (used >= DAILY_UPLOADS) throw httpError(429, "你今天已上传3份资料，请明天再试。");
   const form = await request.formData();
   const file = form.get("file");
@@ -92,16 +89,27 @@ async function upload(request, env) {
   const safeCategory = category.replace(/[^\p{L}\p{N}_-]/gu, "-").slice(0, 30) || "其他资料";
   const filePath = `resources/uploads/${year}/${safeCategory}/${id}.${extension}`;
   const metadataPath = `metadata/resources/${id}.json`;
+  const ratePath = `metadata/rate/${day}/${user.id}/${id}.json`;
   const metadata = {
     id, title, category, year, description, path: filePath, extension, size: file.size,
     uploader: { githubId: user.id, login: user.login }, createdAt: new Date().toISOString()
   };
   const commitUrl = await commitFiles(env, user, [
     { path: filePath, content: toBase64(bytes), encoding: "base64" },
-    { path: metadataPath, content: JSON.stringify(metadata, null, 2) + "\n", encoding: "utf-8" }
+    { path: metadataPath, content: JSON.stringify(metadata, null, 2) + "\n", encoding: "utf-8" },
+    { path: ratePath, content: JSON.stringify({ id, githubId: user.id, createdAt: metadata.createdAt }) + "\n", encoding: "utf-8" }
   ]);
-  await env.SESSIONS.put(rateKey, String(used + 1), { expirationTtl: 2 * 86400 });
   return json({ ok: true, id, commitUrl }, 201);
+}
+
+async function dailyUploadCount(env, day, userId) {
+  const token = await installationToken(env);
+  const path = encodeURIComponent(`metadata/rate/${day}/${userId}`);
+  const response = await fetch(`https://api.github.com/repos/${env.GITHUB_REPOSITORY}/contents/${path}`, { headers: githubHeaders(token) });
+  if (response.status === 404) return 0;
+  const data = await response.json();
+  if (!response.ok) throw httpError(response.status, data.message || "无法检查上传次数。");
+  return Array.isArray(data) ? data.length : 0;
 }
 
 async function commitFiles(env, user, files) {
@@ -151,9 +159,9 @@ async function github(url, token, options = {}) {
 }
 
 async function requireUser(request, env) {
-  const sessionId = parseCookies(request.headers.get("cookie") || "").swjtu_session;
-  const user = sessionId && await env.SESSIONS.get(`session:${sessionId}`, "json");
-  if (!user) throw httpError(401, "请先使用GitHub账号登录。");
+  const value = parseCookies(request.headers.get("cookie") || "").swjtu_session;
+  const user = await verifiedValue(value, env.SESSION_SECRET);
+  if (!user || user.exp < Date.now()) throw httpError(401, "请先使用GitHub账号登录。");
   return user;
 }
 
@@ -167,7 +175,23 @@ function validSignature(ext, bytes) {
 function starts(bytes, signature) { return signature.every((value, index) => bytes[index] === value); }
 function cleanText(value, max) { return String(value || "").trim().replace(/[<>\u0000-\u001f]/g, "").slice(0, max); }
 function parseCookies(value) { return Object.fromEntries(value.split(";").map((item) => item.trim().split("=")).filter((x) => x.length === 2).map(([k, v]) => [k, decodeURIComponent(v)])); }
-function sessionCookie(value) { return `swjtu_session=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${30 * 86400}`; }
+function cookie(name, value, maxAge) { return `${name}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${maxAge}`; }
+async function signedValue(payload, secret) {
+  const body = base64url(JSON.stringify(payload));
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body));
+  return `${body}.${base64url(new Uint8Array(signature))}`;
+}
+async function verifiedValue(value, secret) {
+  try {
+    if (!value || !value.includes(".")) return null;
+    const [body, signature] = value.split(".");
+    const payload = JSON.parse(new TextDecoder().decode(fromBase64url(body)));
+    const expected = await signedValue(payload, secret);
+    return expected === `${body}.${signature}` ? payload : null;
+  } catch { return null; }
+}
+function fromBase64url(value) { const base64 = value.replaceAll("-", "+").replaceAll("_", "/").padEnd(Math.ceil(value.length / 4) * 4, "="); return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)); }
 function githubHeaders(token) { return { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "SWJTU-MATH" }; }
 function base64url(value) { const bytes = typeof value === "string" ? new TextEncoder().encode(value) : value; return toBase64(bytes).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, ""); }
 function toBase64(bytes) { let result = ""; for (let i = 0; i < bytes.length; i += 0x8000) result += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(result); }

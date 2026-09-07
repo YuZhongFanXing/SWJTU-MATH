@@ -1,0 +1,7 @@
+name = "swjtu-math-api"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+[vars]
+FRONTEND_ORIGIN = "https://yuzhongfanxing.github.io"
+GITHUB_REPOSITORY = "YuZhongFanXing/SWJTU-MATH"

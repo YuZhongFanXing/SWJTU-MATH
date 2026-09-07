@@ -53,6 +53,9 @@ async function loadUploadedMetadata() {
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(path.join(root, "web"), output, { recursive: true });
+if (process.env.UPLOAD_API_BASE) {
+  await writeFile(path.join(output, "config.js"), `window.SWJTU_MATH_CONFIG = { apiBase: ${JSON.stringify(process.env.UPLOAD_API_BASE.replace(/\/$/, ""))} };\n`);
+}
 
 const existing = await walk(root);
 const uploaded = (await loadUploadedMetadata()).map((item) => ({
