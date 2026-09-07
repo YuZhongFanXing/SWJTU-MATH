@@ -10,12 +10,13 @@ const safeUrl = (value) => value.split("/").map(encodeURIComponent).join("/");
 const sizeLabel = (bytes = 0) => bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 const resourceUrl = (item) => new URL(safeUrl(item.path), location.href).href;
 const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
+const normalized = (value = "") => String(value).normalize("NFC").trim().toLocaleLowerCase("zh-CN");
 
 function filtered() {
   const needle = state.query.trim().toLocaleLowerCase("zh-CN");
   return state.resources.filter((item) =>
-    (state.category === "全部" || item.category === state.category) &&
-    (!state.type || item.extension === state.type) &&
+    (state.category === "全部" || normalized(item.category) === normalized(state.category)) &&
+    (!state.type || normalized(item.extension) === normalized(state.type)) &&
     (!needle || `${item.title} ${item.category} ${item.description || ""} ${item.extension}`.toLocaleLowerCase("zh-CN").includes(needle))
   );
 }
@@ -43,6 +44,7 @@ function renderFilters() {
   els.categories.innerHTML = categories.map((name) => `<button class="category${name === state.category ? " active" : ""}" data-category="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("");
   const types = [...new Set(state.resources.map((item) => item.extension))].sort();
   els.type.innerHTML = `<option value="">全部格式</option>${types.map((type) => `<option value="${type}">${type.toUpperCase()}</option>`).join("")}`;
+  els.type.value = state.type;
   $("#upload-category").innerHTML = categories.filter((x) => x !== "全部").map((x) => `<option>${escapeHtml(x)}</option>`).join("") + `<option>其他资料</option>`;
   $("#resource-count").textContent = state.resources.length;
   $("#category-count").textContent = categories.length - 1;
@@ -115,7 +117,7 @@ els.more.addEventListener("click", () => { state.visible += 18; renderResources(
 $("#upload-form").addEventListener("submit", submitUpload);
 document.addEventListener("keydown", (event) => { if (event.key === "/" && !/input|textarea/i.test(document.activeElement.tagName)) { event.preventDefault(); els.search.focus(); } });
 
-fetch("./resources.json").then((response) => response.json()).then((data) => {
+fetch(`./resources.json?v=${Date.now()}`, { cache: "no-store" }).then((response) => response.json()).then((data) => {
   state.resources = data.resources; renderFilters(); renderResources();
   const id = new URLSearchParams(location.hash.slice(1)).get("resource");
   const item = state.resources.find((x) => x.id === id);
