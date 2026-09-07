@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="西南交通大学数学学院课程资料库">
+  <title>SWJTU MATH · 数学资料库</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="资料库首页"><span>SWJTU</span> MATH</a>
+    <nav>
+      <a href="#library">资料库</a>
+      <button id="upload-entry" class="nav-upload" type="button">上传资料</button>
+      <a href="https://github.com/YuZhongFanXing/SWJTU-MATH" target="_blank" rel="noreferrer">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">OPEN STUDY ARCHIVE</p>
+      <h1>把散落的资料，<br><em>整理成共同的知识。</em></h1>
+      <p class="hero-copy">面向西南交通大学数学学习者的开放资料库。按课程发现试卷、笔记、代码与政策资料。</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#library">开始浏览</a>
+        <button class="button secondary" data-open-upload type="button">贡献资料</button>
+      </div>
+      <dl class="stats" aria-label="资料库统计">
+        <div><dt id="resource-count">—</dt><dd>份资料</dd></div>
+        <div><dt id="category-count">—</dt><dd>个分类</dd></div>
+        <div><dt>FREE</dt><dd>开放访问</dd></div>
+      </dl>
+    </section>
+
+    <section class="library" id="library">
+      <div class="section-heading">
+        <div><p class="eyebrow">LIBRARY</p><h2>浏览资料</h2></div>
+        <label class="search"><span class="sr-only">搜索资料</span><input id="search" type="search" placeholder="搜索课程、标题或格式…"><kbd>/</kbd></label>
+      </div>
+      <div id="categories" class="categories" aria-label="资料分类"></div>
+      <div class="result-line"><span id="result-count">正在加载…</span><select id="type-filter" aria-label="文件类型"><option value="">全部格式</option></select></div>
+      <div id="resource-grid" class="resource-grid" aria-live="polite"></div>
+      <button id="load-more" class="load-more" type="button" hidden>加载更多</button>
+    </section>
+  </main>
+
+  <dialog id="preview-dialog" class="modal preview-modal">
+    <div class="modal-head"><div><p class="eyebrow">PREVIEW</p><h2 id="preview-title">资料预览</h2></div><button class="icon-button" data-close aria-label="关闭">×</button></div>
+    <div id="preview-body" class="preview-body"></div>
+    <div class="modal-actions"><a id="preview-download" class="button primary" download>下载原文件</a></div>
+  </dialog>
+
+  <dialog id="upload-dialog" class="modal upload-modal">
+    <div class="modal-head"><div><p class="eyebrow">CONTRIBUTE</p><h2>上传一份资料</h2></div><button class="icon-button" data-close aria-label="关闭">×</button></div>
+    <div id="auth-panel" class="auth-panel">
+      <p>上传需要使用GitHub账号登录。浏览和下载无需登录。</p>
+      <a id="github-login" class="button github" href="#">使用 GitHub 登录</a>
+    </div>
+    <form id="upload-form" hidden>
+      <div id="signed-user" class="signed-user"></div>
+      <label>资料标题<input name="title" required maxlength="80" placeholder="例如：2025年常微分方程期末试卷"></label>
+      <div class="form-row">
+        <label>分类<select name="category" id="upload-category" required></select></label>
+        <label>年份<input name="year" type="number" min="2000" max="2100" value="2026" required></label>
+      </div>
+      <label>简单说明<textarea name="description" maxlength="300" placeholder="资料内容、适用课程或来源说明"></textarea></label>
+      <label class="file-drop">选择文件<input name="file" type="file" required accept=".pdf,.jpg,.jpeg,.png,.webp,.md,.txt"><span>PDF / 图片 / Markdown / TXT，最大10MB</span></label>
+      <label class="consent"><input name="consent" type="checkbox" required> 我确认有权分享该资料，且不包含隐私、违法内容或未公开试题。</label>
+      <p id="upload-status" class="form-status" role="status"></p>
+      <button class="button primary full" type="submit">上传并自动发布</button>
+    </form>
+    <div id="upload-unavailable" class="notice" hidden>上传服务尚未配置。站点管理员完成 Worker 与 GitHub App 配置后即可开放。</div>
+  </dialog>
+
+  <footer><span>SWJTU MATH</span><p>资料仅供学习交流。发现侵权或隐私内容，请通过GitHub Issues反馈。</p></footer>
+  <script src="./config.js"></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "swjtu-math-library",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node --check web/app.js && node --check worker/src/index.js && node scripts/build.mjs"
+  }
+}

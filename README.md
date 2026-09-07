@@ -5,6 +5,25 @@
 
 本资料库收集整理了西南交通大学数学学院的各类考试资料、课程笔记、考研真题等学习资源，旨在帮助同学们更好地学习和复习。
 
+## 网站功能
+
+- 按课程分类浏览，支持标题、分类和格式搜索；
+- PDF、图片、Markdown、TXT 和 MATLAB 代码在线预览；
+- 原文件下载以及资料分享链接；
+- 可选的 GitHub 账号登录投稿；
+- 投稿限制为 10MB，每个账号每天最多 3 份，自动提交并发布。
+
+## 本地预览
+
+```bash
+npm run build
+python3 -m http.server 8000 --directory site
+```
+
+打开 `http://localhost:8000`。构建脚本会扫描现有资料以及 `metadata/resources/*.json` 投稿元数据，生成前端使用的 `site/resources.json`。
+
+上传按钮默认显示“尚未配置”，不会在前端保存任何 GitHub 密钥。完整的 GitHub OAuth、GitHub App 和 Cloudflare Worker 配置见 [`worker/README.md`](worker/README.md)。部署 Worker 后，将接口地址写入 [`web/config.js`](web/config.js) 即可开放投稿。
+
 ## 资料分类
 
 | 目录 | 内容说明 |

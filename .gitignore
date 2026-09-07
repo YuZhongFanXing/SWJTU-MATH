@@ -53,6 +53,8 @@ $RECYCLE.BIN/
 
 # MkDocs build output
 site/
+worker/wrangler.toml
+.wrangler/
 
 # Temporary files
 *~
