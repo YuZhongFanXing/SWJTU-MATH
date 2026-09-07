@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T08:34:21.402Z",
+  "generatedAt": "2026-09-07T09:09:07.052Z",
   "resources": [
     {
       "id": "5bi45b6u5YiGLzIwMTkt5bi45b6u5YiG5pa556iLLeacn-acq-iAg-ivleivleWNtyhCKeetiTEz5Liq5paH5Lu2LnppcA",
@@ -730,6 +730,23 @@
       "size": 141824,
       "previewable": true,
       "source": "repository"
+    },
+    {
+      "id": "be0f5ee2-b36b-48b0-a0f6-616889b5576c",
+      "title": "推免课程",
+      "category": "推免",
+      "year": 2026,
+      "description": "",
+      "path": "resources/uploads/2026/推免/be0f5ee2-b36b-48b0-a0f6-616889b5576c.png",
+      "extension": "png",
+      "size": 879569,
+      "uploader": {
+        "githubId": 142670478,
+        "login": "YuZhongFanXing"
+      },
+      "createdAt": "2026-09-07T09:08:53.060Z",
+      "previewable": true,
+      "source": "upload"
     },
     {
       "id": "MjAyM-W5tOWtpumZoui9rOS4k-S4muWunuaWvee7huWImS5yYXI",
