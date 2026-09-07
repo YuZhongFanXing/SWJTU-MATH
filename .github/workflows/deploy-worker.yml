@@ -6,6 +6,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      HAS_APP_CONFIG: ${{ secrets.GITHUB_OAUTH_CLIENT_ID }}
     defaults:
       run:
         working-directory: worker
@@ -22,7 +24,7 @@ jobs:
           workingDirectory: worker
           wranglerVersion: "4.50.0"
       - name: Configure application secrets
-        if: ${{ secrets.GITHUB_OAUTH_CLIENT_ID != '' && secrets.GITHUB_OAUTH_CLIENT_SECRET != '' && secrets.GITHUB_APP_ID != '' && secrets.GITHUB_INSTALLATION_ID != '' && secrets.GITHUB_APP_PRIVATE_KEY != '' && secrets.SESSION_SECRET != '' }}
+        if: ${{ env.HAS_APP_CONFIG != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
