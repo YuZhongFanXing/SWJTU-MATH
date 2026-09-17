@@ -7,7 +7,6 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 
 ARCHIVE_PATHS=(
   "$ROOT_DIR/复变函数.zip"
-  "$ROOT_DIR/2023年学院转专业实施细则.rar"
   "$ROOT_DIR/20级2024届各学院保研名单通知.rar"
   "$ROOT_DIR/大物实验题库.zip"
   "$ROOT_DIR/常微分/2019-常微分方程-期末考试试卷(B)等13个文件.zip"
