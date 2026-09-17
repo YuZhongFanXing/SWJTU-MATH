@@ -3,6 +3,12 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node --check web/app.js && node --check worker/src/index.js && node scripts/build.mjs"
+    "check": "node --check web/app.js && node --check worker/src/index.js && node scripts/build.mjs",
+    "extract:archives": "bash scripts/extract-archives.sh"
+  },
+  "dependencies": {
+    "docx-preview": "0.4.0",
+    "jszip": "3.10.2",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

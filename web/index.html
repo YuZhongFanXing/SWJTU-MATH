@@ -18,7 +18,16 @@
 
   <main>
     <section class="hero">
-      <div><p class="eyebrow">西南交通大学 · 数学学院</p><h1>课程资料库</h1><p class="hero-copy">试卷、笔记、代码与升学资料，开放浏览与下载。</p></div>
+      <div class="hero-content"><p class="eyebrow">西南交通大学 · 数学学院</p><h1>课程资料库</h1><p class="hero-copy">试卷、笔记、代码与升学资料，开放浏览与下载。</p></div>
+      <div class="math-ornament" aria-hidden="true">
+        <span class="math-symbol symbol-sigma">∑</span>
+        <span class="math-symbol symbol-integral">∫</span>
+        <span class="math-symbol symbol-nabla">∇</span>
+        <span class="math-formula formula-main">f(x) = ∫₀ˣ e<sup>−t²</sup> dt</span>
+        <span class="math-formula formula-side">A = πr²</span>
+        <span class="math-formula formula-bottom">lim<sub>n→∞</sub> (1 + 1/n)<sup>n</sup> = e</span>
+        <span class="math-axis axis-x"></span><span class="math-axis axis-y"></span>
+      </div>
       <dl class="stats" aria-label="资料库统计"><div><dt id="resource-count">—</dt><dd>份资料</dd></div><div><dt id="category-count">—</dt><dd>个分类</dd></div></dl>
     </section>
 
@@ -60,7 +69,7 @@
         <label>年份<input name="year" type="number" min="2000" max="2100" value="2026" required></label>
       </div>
       <label>简单说明<textarea name="description" maxlength="300" placeholder="资料内容、适用课程或来源说明"></textarea></label>
-      <label class="file-drop">选择文件<input name="file" type="file" required accept=".pdf,.jpg,.jpeg,.png,.webp,.md,.txt"><span>PDF / 图片 / Markdown / TXT，最大10MB</span></label>
+      <label class="file-drop">选择文件<input name="file" type="file" required accept=".pdf,.jpg,.jpeg,.png,.webp,.md,.txt,.docx,.xlsx"><span>PDF / 图片 / Markdown / TXT / DOCX / XLSX，最大10MB</span></label>
       <label class="consent"><input name="consent" type="checkbox" required> 我确认有权分享该资料，且不包含隐私、违法内容或未公开试题。</label>
       <p id="upload-status" class="form-status" role="status"></p>
       <button class="button primary full" type="submit">上传并自动发布</button>
@@ -70,6 +79,6 @@
 
   <footer><span>SWJTU MATH</span><p>资料仅供学习交流。发现侵权或隐私内容，请通过GitHub Issues反馈。</p></footer>
   <script src="./config.js"></script>
-  <script src="./app.js?v=20260907-2" defer></script>
+  <script src="./app.js?v=20260917-1" defer></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const DAILY_UPLOADS = 3;
-const ALLOWED = new Set(["pdf", "jpg", "jpeg", "png", "webp", "md", "txt"]);
+const ALLOWED = new Set(["pdf", "jpg", "jpeg", "png", "webp", "md", "txt", "docx", "xlsx"]);
 
 export default {
   async fetch(request, env) {
@@ -81,7 +81,7 @@ async function upload(request, env) {
   if (file.size === 0 || file.size > MAX_FILE_SIZE) throw httpError(413, "文件大小必须在1字节到10MB之间。");
   if (!Number.isInteger(year) || year < 2000 || year > 2100) throw httpError(400, "年份格式不正确。");
   const extension = String(file.name).split(".").pop().toLowerCase();
-  if (!ALLOWED.has(extension)) throw httpError(415, "仅支持PDF、图片、Markdown和TXT文件。");
+  if (!ALLOWED.has(extension)) throw httpError(415, "仅支持PDF、图片、Markdown、TXT、DOCX和XLSX文件。");
   const bytes = new Uint8Array(await file.arrayBuffer());
   if (!validSignature(extension, bytes)) throw httpError(415, "文件内容与扩展名不一致。");
 
@@ -170,6 +170,12 @@ function validSignature(ext, bytes) {
   if (["jpg", "jpeg"].includes(ext)) return starts(bytes, [0xff, 0xd8, 0xff]);
   if (ext === "png") return starts(bytes, [0x89, 0x50, 0x4e, 0x47]);
   if (ext === "webp") return new TextDecoder().decode(bytes.slice(0, 4)) === "RIFF" && new TextDecoder().decode(bytes.slice(8, 12)) === "WEBP";
+  if (["docx", "xlsx"].includes(ext)) {
+    if (!starts(bytes, [0x50, 0x4b])) return false;
+    const packageNames = new TextDecoder("latin1").decode(bytes);
+    const required = ext === "docx" ? "word/document.xml" : "xl/workbook.xml";
+    return packageNames.includes("[Content_Types].xml") && packageNames.includes(required);
+  }
   try { new TextDecoder("utf-8", { fatal: true }).decode(bytes); return true; } catch { return false; }
 }
 function starts(bytes, signature) { return signature.every((value, index) => bytes[index] === value); }

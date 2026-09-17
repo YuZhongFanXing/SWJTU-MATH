@@ -52,6 +52,6 @@
 - 单文件上限 10MB；
 - 每个 GitHub 账号每天最多 3 份；
 - GitHub 账号需注册满 7 天；
-- 仅 PDF、JPG、PNG、WebP、Markdown、TXT；
+- 仅 PDF、JPG、PNG、WebP、Markdown、TXT、DOCX、XLSX；
 - 文件与元数据一次提交到 `main`，触发网站重新构建；
 - 自动发布无法替代内容审核，管理员仍应保留举报和紧急删除渠道。
