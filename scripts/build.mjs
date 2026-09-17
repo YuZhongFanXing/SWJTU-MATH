@@ -3,7 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const output = path.join(root, "site");
-const excludedRoots = new Set([".git", ".github", "web", "worker", "scripts", "site", "metadata"]);
+const excludedRoots = new Set([".git", ".github", "web", "worker", "scripts", "site", "metadata", "node_modules"]);
 const ignoredFiles = new Set(["README.md", "LICENSE", "mkdocs.yml", "package.json", ".gitignore"]);
 const allowed = new Set(["pdf", "jpg", "jpeg", "png", "webp", "md", "txt", "m", "docx", "xlsx"]);
 
