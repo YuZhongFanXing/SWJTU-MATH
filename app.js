@@ -14,7 +14,7 @@ const allowedUploads = new Set(["pdf", "jpg", "jpeg", "png", "webp", "md", "txt"
 const scriptCache = new Map();
 const safeUrl = (value) => String(value).split("/").map(encodeURIComponent).join("/");
 const sizeLabel = (bytes = 0) => bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-const resourceUrl = (item) => new URL(safeUrl(item.path), location.href).href;
+const resourceUrl = (item) => item.url ? new URL(item.url, location.href).href : new URL(safeUrl(item.path), location.href).href;
 const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
 const normalized = (value = "") => String(value).normalize("NFC").trim().toLocaleLowerCase("zh-CN");
 const previewKindOf = (item) => item.previewKind || ({
