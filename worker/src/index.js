@@ -123,6 +123,7 @@ function huggingFaceStorage(env) {
   const values = [env.HF_S3_NAMESPACE, env.HF_BUCKET, env.HF_S3_ACCESS_KEY_ID, env.HF_S3_SECRET_ACCESS_KEY];
   const configured = values.some(Boolean);
   if (!configured) return null;
+  if (env.HF_S3_NAMESPACE && env.HF_BUCKET && !env.HF_S3_ACCESS_KEY_ID && !env.HF_S3_SECRET_ACCESS_KEY) return null;
   if (values.some((value) => !value)) throw httpError(503, "Hugging Face 存储配置不完整，请联系管理员。");
   const namespace = String(env.HF_S3_NAMESPACE).trim();
   const bucket = String(env.HF_BUCKET).trim();
