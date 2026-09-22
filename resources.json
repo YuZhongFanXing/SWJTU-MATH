@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-22T08:17:04.341Z",
+  "generatedAt": "2026-09-22T08:39:03.710Z",
   "resources": [
     {
       "id": "MjDnuqcyMDI05bGK5ZCE5a2m6Zmi5L-d56CU5ZCN5Y2V6YCa55-lL-ilv-WNl-S6pOWkp-WQhOWtpumZouS_neeglOWQjeWNlemAmuefpS_mlbDlrablrabpmaIyMDI05bm05o6o6I2Q5LyY56eA5bqU5bGK5pys56eR5q-V5Lia55Sf5YWN6K-V5pS76K-756CU56m255Sf5YCZ6YCJ5Lq65ZCN5Y2V6KGoLnBkZg",
@@ -1617,6 +1617,26 @@
       "previewKind": "pdf",
       "previewable": true,
       "source": "repository"
+    },
+    {
+      "id": "52706d61-d133-41ab-9087-943978d78200",
+      "title": "面试英语",
+      "category": "推免",
+      "year": 2026,
+      "description": "",
+      "path": "resources/uploads/2026/推免/52706d61-d133-41ab-9087-943978d78200.docx",
+      "extension": "docx",
+      "size": 17488,
+      "uploader": {
+        "githubId": 142670478,
+        "login": "YuZhongFanXing"
+      },
+      "createdAt": "2026-09-22T08:38:44.610Z",
+      "storage": "huggingface",
+      "url": "https://huggingface.co/buckets/rainstars/swjtu-math/resolve/resources/uploads/2026/%E6%8E%A8%E5%85%8D/52706d61-d133-41ab-9087-943978d78200.docx",
+      "previewKind": "docx",
+      "previewable": true,
+      "source": "upload"
     },
     {
       "id": "5o6o5YWNL-aVsOWtpuWtpumZojIwMjblsYrlhY3or5XnoJTnqbbnlJ_mi5_mjqjojZDlgJnpgInkurrlkI3ljZUucGRm",
