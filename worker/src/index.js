@@ -90,16 +90,136 @@ async function upload(request, env) {
   const filePath = `resources/uploads/${year}/${safeCategory}/${id}.${extension}`;
   const metadataPath = `metadata/resources/${id}.json`;
   const ratePath = `metadata/rate/${day}/${user.id}/${id}.json`;
+  const hfStorage = huggingFaceStorage(env);
   const metadata = {
     id, title, category, year, description, path: filePath, extension, size: file.size,
     uploader: { githubId: user.id, login: user.login }, createdAt: new Date().toISOString()
   };
-  const commitUrl = await commitFiles(env, user, [
-    { path: filePath, content: toBase64(bytes), encoding: "base64" },
+  const files = [
     { path: metadataPath, content: JSON.stringify(metadata, null, 2) + "\n", encoding: "utf-8" },
     { path: ratePath, content: JSON.stringify({ id, githubId: user.id, createdAt: metadata.createdAt }) + "\n", encoding: "utf-8" }
+  ];
+  if (hfStorage) {
+    metadata.storage = "huggingface";
+    metadata.url = hfStorage.publicUrl(filePath);
+    files[0] = { path: metadataPath, content: JSON.stringify(metadata, null, 2) + "\n", encoding: "utf-8" };
+    try {
+      await putHuggingFaceObject(hfStorage, filePath, bytes, mimeTypeOf(extension));
+      const commitUrl = await commitFiles(env, user, files);
+      return json({ ok: true, id, commitUrl, storage: "huggingface" }, 201);
+    } catch (error) {
+      try { await deleteHuggingFaceObject(hfStorage, filePath); } catch (cleanupError) { console.error("HF cleanup failed", cleanupError); }
+      throw error;
+    }
+  }
+  const commitUrl = await commitFiles(env, user, [
+    { path: filePath, content: toBase64(bytes), encoding: "base64" },
+    ...files
   ]);
   return json({ ok: true, id, commitUrl }, 201);
+}
+
+function huggingFaceStorage(env) {
+  const values = [env.HF_S3_NAMESPACE, env.HF_BUCKET, env.HF_S3_ACCESS_KEY_ID, env.HF_S3_SECRET_ACCESS_KEY];
+  const configured = values.some(Boolean);
+  if (!configured) return null;
+  if (values.some((value) => !value)) throw httpError(503, "Hugging Face 存储配置不完整，请联系管理员。");
+  const namespace = String(env.HF_S3_NAMESPACE).trim();
+  const bucket = String(env.HF_BUCKET).trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(namespace) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(bucket)) {
+    throw httpError(503, "Hugging Face Bucket 名称配置不正确，请联系管理员。");
+  }
+  const publicBase = String(env.HF_PUBLIC_BASE_URL || `https://huggingface.co/buckets/${namespace}/${bucket}/resolve`).replace(/\/$/, "");
+  return {
+    namespace,
+    bucket,
+    accessKeyId: String(env.HF_S3_ACCESS_KEY_ID),
+    secretAccessKey: String(env.HF_S3_SECRET_ACCESS_KEY),
+    endpoint: `https://s3.hf.co/${encodeURIComponent(namespace)}`,
+    publicUrl: (key) => `${publicBase}/${key.split("/").map(encodeURIComponent).join("/")}`
+  };
+}
+
+function mimeTypeOf(extension) {
+  return ({
+    pdf: "application/pdf",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+    md: "text/markdown; charset=utf-8",
+    txt: "text/plain; charset=utf-8",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  })[extension] || "application/octet-stream";
+}
+
+async function putHuggingFaceObject(storage, key, bytes, contentType) {
+  const response = await signedS3Request(storage, "PUT", key, bytes, { "content-type": contentType });
+  if (!response.ok) throw await storageError(response, "Hugging Face 文件上传失败。");
+}
+
+async function deleteHuggingFaceObject(storage, key) {
+  const response = await signedS3Request(storage, "DELETE", key, new Uint8Array());
+  if (!response.ok && response.status !== 404) throw await storageError(response, "Hugging Face 文件清理失败。");
+}
+
+async function signedS3Request(storage, method, key, body, extraHeaders = {}) {
+  const path = `/${encodePath(storage.bucket)}/${encodePath(key)}`;
+  const url = new URL(`${storage.endpoint}${path}`);
+  const region = "us-east-1";
+  const service = "s3";
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, "");
+  const dateStamp = amzDate.slice(0, 8);
+  const payloadHash = await sha256Hex(body);
+  const signed = {
+    host: url.host,
+    "x-amz-content-sha256": payloadHash,
+    "x-amz-date": amzDate,
+    ...extraHeaders
+  };
+  const canonicalHeaders = Object.keys(signed).sort().map((name) => `${name.toLowerCase()}:${String(signed[name]).trim()}\n`).join("");
+  const signedHeaders = Object.keys(signed).sort().map((name) => name.toLowerCase()).join(";");
+  const canonicalRequest = [method, url.pathname, "", canonicalHeaders, signedHeaders, payloadHash].join("\n");
+  const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
+  const stringToSign = ["AWS4-HMAC-SHA256", amzDate, credentialScope, await sha256Hex(new TextEncoder().encode(canonicalRequest))].join("\n");
+  const signingKey = await hmac(await hmac(await hmac(await hmac(new TextEncoder().encode(`AWS4${storage.secretAccessKey}`), dateStamp), region), service), "aws4_request");
+  const signature = await hmacHex(signingKey, stringToSign);
+  const authorization = `AWS4-HMAC-SHA256 Credential=${storage.accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+  return fetch(url, {
+    method,
+    headers: { ...extraHeaders, "x-amz-content-sha256": payloadHash, "x-amz-date": amzDate, Authorization: authorization },
+    body: method === "PUT" ? body : undefined
+  });
+}
+
+async function storageError(response, fallback) {
+  const detail = (await response.text()).replace(/\s+/g, " ").slice(0, 240);
+  const error = httpError(502, fallback);
+  error.message = `${fallback} (${response.status}${detail ? `: ${detail}` : ""})`;
+  return error;
+}
+
+function encodePath(value) {
+  return String(value).split("/").map((part) => encodeURIComponent(part).replace(/[!'()*]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`)).join("/");
+}
+
+async function sha256Hex(value) {
+  return toHex(new Uint8Array(await crypto.subtle.digest("SHA-256", value)));
+}
+
+async function hmac(key, value) {
+  const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", cryptoKey, typeof value === "string" ? new TextEncoder().encode(value) : value));
+}
+
+async function hmacHex(key, value) {
+  return toHex(await hmac(key, value));
+}
+
+function toHex(bytes) {
+  return [...bytes].map((value) => value.toString(16).padStart(2, "0")).join("");
 }
 
 async function dailyUploadCount(env, day, userId) {

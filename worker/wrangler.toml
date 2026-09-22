@@ -5,3 +5,7 @@ compatibility_date = "2026-01-01"
 [vars]
 FRONTEND_ORIGIN = "https://yuzhongfanxing.github.io"
 GITHUB_REPOSITORY = "YuZhongFanXing/SWJTU-MATH"
+# 配置 HF Bucket 后填写；未配置时上传仍使用 GitHub 作为过渡存储。
+HF_S3_NAMESPACE = ""
+HF_BUCKET = ""
+HF_PUBLIC_BASE_URL = ""

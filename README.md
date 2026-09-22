@@ -27,6 +27,8 @@ python3 -m http.server 8000 --directory site
 
 上传按钮默认显示“尚未配置”，不会在前端保存任何 GitHub 密钥。投稿支持 PDF、图片、Markdown、TXT、DOCX 和 XLSX，不支持 ZIP/RAR。完整的 GitHub OAuth、GitHub App 和 Cloudflare Worker 配置见 [`worker/README.md`](worker/README.md)。部署 Worker 后，将接口地址写入 [`web/config.js`](web/config.js) 即可开放投稿。
 
+如需扩大资料存储，可在 Worker 中配置 Hugging Face Storage Bucket。用户仍使用 GitHub 账号投稿，Worker 负责校验和限流，资料文件写入公开 Bucket，GitHub 只保存索引和元数据；未配置 Bucket 时仍兼容 GitHub 文件存储。
+
 ## 资料分类
 
 | 目录 | 内容说明 |

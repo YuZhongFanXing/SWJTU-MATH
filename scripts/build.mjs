@@ -84,6 +84,7 @@ for (const item of uploaded) byPath.set(item.path, item);
 const resources = [...byPath.values()].sort((a, b) => a.category.localeCompare(b.category, "zh-CN") || a.title.localeCompare(b.title, "zh-CN"));
 
 for (const resource of resources) {
+  if (resource.url) continue;
   const source = path.join(root, resource.path);
   const destination = path.join(output, resource.path);
   await mkdir(path.dirname(destination), { recursive: true });

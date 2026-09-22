@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HAS_APP_CONFIG: ${{ secrets.OAUTH_CLIENT_ID }}
+      HAS_HF_CONFIG: ${{ secrets.HF_S3_ACCESS_KEY_ID }}
     defaults:
       run:
         working-directory: worker
@@ -45,3 +46,17 @@ jobs:
           GITHUB_INSTALLATION_ID: ${{ secrets.UPLOAD_INSTALLATION_ID }}
           GITHUB_APP_PRIVATE_KEY: ${{ secrets.UPLOAD_APP_PRIVATE_KEY }}
           SESSION_SECRET: ${{ secrets.UPLOAD_SESSION_SECRET }}
+      - name: Configure Hugging Face storage secrets
+        if: ${{ env.HAS_HF_CONFIG != '' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          wranglerVersion: "4.50.0"
+          secrets: |
+            HF_S3_ACCESS_KEY_ID
+            HF_S3_SECRET_ACCESS_KEY
+        env:
+          HF_S3_ACCESS_KEY_ID: ${{ secrets.HF_S3_ACCESS_KEY_ID }}
+          HF_S3_SECRET_ACCESS_KEY: ${{ secrets.HF_S3_SECRET_ACCESS_KEY }}
