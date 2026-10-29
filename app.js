@@ -70,12 +70,12 @@ function renderResources() {
 function renderFilters() {
   const categories = ["全部", ...new Set(state.resources.map((item) => item.category))];
   const groupedCategories = Object.entries(gradeGroups).map(([grade, courses]) => `
-    <section class="category-group">
-      <h3>${escapeHtml(grade)}</h3>
+    <details class="category-group"${courses.includes(state.category) ? " open" : ""}>
+      <summary>${escapeHtml(grade)}<span class="category-chevron" aria-hidden="true">⌄</span></summary>
       <div class="category-subitems">
         ${courses.filter((course) => categories.includes(course)).map((name) => `<button class="category category-child${name === state.category ? " active" : ""}" data-category="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}
       </div>
-    </section>`).join("");
+    </details>`).join("");
   els.categories.innerHTML = `<button class="category category-all${state.category === "全部" ? " active" : ""}" data-category="全部">全部资料</button>${groupedCategories}`;
   const types = [...new Set(state.resources.map((item) => item.extension))].sort();
   els.type.innerHTML = `<option value="">全部格式</option>${types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type.toUpperCase())}</option>`).join("")}`;
