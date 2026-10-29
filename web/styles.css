@@ -204,6 +204,11 @@ nav a:hover { color: var(--blue); }
 }
 .sidebar-title small { color: #93a5ae; font-size: 9px; letter-spacing: .12em; }
 .categories { display: grid; gap: 3px; padding: 10px 0; }
+.category-group { display: grid; gap: 3px; margin-top: 10px; }
+.category-group h3 { margin: 8px 12px 2px; color: var(--navy); font-size: 13px; letter-spacing: .04em; }
+.category-subitems { display: grid; gap: 3px; }
+.category-child { padding: 8px 12px 8px 25px; color: var(--muted); font-size: 12px; text-align: left; }
+.category-all { margin-bottom: 4px; text-align: left; }
 .category {
   width: 100%;
   padding: 11px 12px;
@@ -307,7 +312,10 @@ footer p { margin: 0; }
   .library { grid-template-columns: 1fr; }
   .sidebar { position: static; }
   .sidebar-title, .sidebar-note { display: none; }
-  .categories { display: flex; overflow-x: auto; gap: 7px; padding: 0; }
+  .categories { display: flex; align-items: center; overflow-x: auto; gap: 7px; padding: 0; }
+  .category-group { display: contents; }
+  .category-group h3 { flex: 0 0 auto; margin: 0 2px 0 8px; font-size: 12px; }
+  .category-child { padding: 8px 13px; }
   .category { width: auto; white-space: nowrap; border-color: var(--line); padding: 8px 13px; }
   .category.active { border-color: var(--navy); }
   .hero { min-height: 390px; padding-top: 46px; }
