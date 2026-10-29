@@ -11,6 +11,15 @@ const els = {
 };
 
 const allowedUploads = new Set(["pdf", "jpg", "jpeg", "png", "webp", "md", "txt", "docx", "xlsx"]);
+// Navigation is maintained separately from the resource index so adding a file
+// does not change the grade/course structure.
+const gradeGroups = {
+  "大一": ["数分高代解几", "C++", "思修"],
+  "大二": ["常微分", "复变函数", "概率论"],
+  "大三": ["实变函数", "拓扑", "数值分析"],
+  "大四": ["考研真题", "推免", "焚决", "政策文件整理", "20级2024届各学院保研名单通知"],
+  "综合资料": ["数院往年考试题", "综合资料"]
+};
 const scriptCache = new Map();
 const safeUrl = (value) => String(value).split("/").map(encodeURIComponent).join("/");
 const sizeLabel = (bytes = 0) => bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
@@ -60,7 +69,14 @@ function renderResources() {
 
 function renderFilters() {
   const categories = ["全部", ...new Set(state.resources.map((item) => item.category))];
-  els.categories.innerHTML = categories.map((name) => `<button class="category${name === state.category ? " active" : ""}" data-category="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("");
+  const groupedCategories = Object.entries(gradeGroups).map(([grade, courses]) => `
+    <section class="category-group">
+      <h3>${escapeHtml(grade)}</h3>
+      <div class="category-subitems">
+        ${courses.filter((course) => categories.includes(course)).map((name) => `<button class="category category-child${name === state.category ? " active" : ""}" data-category="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}
+      </div>
+    </section>`).join("");
+  els.categories.innerHTML = `<button class="category category-all${state.category === "全部" ? " active" : ""}" data-category="全部">全部资料</button>${groupedCategories}`;
   const types = [...new Set(state.resources.map((item) => item.extension))].sort();
   els.type.innerHTML = `<option value="">全部格式</option>${types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type.toUpperCase())}</option>`).join("")}`;
   els.type.value = state.type;
